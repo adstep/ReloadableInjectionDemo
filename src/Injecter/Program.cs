@@ -11,22 +11,37 @@ namespace Injecter
     {
         static void Main(string[] args)
         {
-            var exampleExe = "Example.exe";
+            if (args.Length != 3)
+            {
+                Console.WriteLine("Usage: <processName> <libraryPath> <libraryArgs>");
+                return;
+            }
+
+            var processName = args[0];
+            var libraryPath = args[1];
+            var libraryArgs = args[2];
 
             var hostModuleName = "Host.dll";
             var hostModulePath = Path.Combine(Directory.GetCurrentDirectory(), hostModuleName);
 
-            var libraryModuleName = "Library.dll";
-            var libraryModulePath = Path.Combine(Directory.GetCurrentDirectory(), libraryModuleName);
+            var process = Process.GetProcessesByName(processName).FirstOrDefault();
 
-            var libraryArgs = "helloworld";
+            if (process == null)
+            {
+                Console.WriteLine($"Could not find process with name {processName}.");
+                return;
+            }
 
-            var process = Process.Start(exampleExe);
+            if (!File.Exists(libraryPath))
+            {
+                Console.WriteLine($"Could not find library at '{libraryPath}'. File does not exist.");
+                return;
+            }
 
             try
             {
                 Load(process, hostModulePath);
-                Call(process, hostModuleName, "Run", $"{libraryModulePath} {libraryArgs}");
+                Call(process, hostModuleName, "Run", $"{libraryPath} {libraryArgs}");
             }
             catch
             {
@@ -34,7 +49,7 @@ namespace Injecter
             }
             finally
             {
-                if (process != null && !process.HasExited)
+                if (!process.HasExited)
                     process.Kill();
             }
         }
