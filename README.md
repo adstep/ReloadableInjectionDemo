@@ -17,7 +17,7 @@ A high level overview of the execution:
 1. Load Host library into process (using CreateRemoteThread injection)
 2. Find offset of Host's 'Run' function in process
 3. Call 'Run' function in process passing library to run arguments (using CreateRemoteThread again)
-4. Execute now proceeds within process
+4. Execution now proceeds within process
 5. Create new app domain and load requested library
 6. Invoke 'Run' function in requested library by finding method with STAThread attribute
 7. Wait for 'Run' to complete and repeat 5-7 on key press
