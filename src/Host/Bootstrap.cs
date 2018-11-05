@@ -46,8 +46,6 @@ namespace Host
         [STAThread]
         private static void ReloadLoop(string assemblyPath, string args)
         {
-            Debugger.Launch();
-
             if (!File.Exists(assemblyPath))
             {
                 Message.ShowError($"Could not find assembly at '{assemblyPath}.");
@@ -89,6 +87,10 @@ namespace Host
                 var domainName = $"Host_Internal_{Rand.Next(0, 100000)}";
 
                 currentDomain = AppDomain.CreateDomain(domainName, AppDomain.CurrentDomain.Evidence, ads);
+
+                AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) => (eventArgs.Name == Assembly.GetExecutingAssembly().FullName) ? 
+                                                                                    Assembly.GetExecutingAssembly() : 
+                                                                                    Assembly.Load(eventArgs.Name);
 
                 var loader = (AssemblyLoader)currentDomain.CreateInstanceAndUnwrap(
                     Assembly.GetExecutingAssembly().FullName, typeof(AssemblyLoader).FullName);
